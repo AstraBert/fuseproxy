@@ -31,13 +31,14 @@ app.post("/v1/messages", async (req, res) => {
     res.status(401).send({ detail: "Unauthorized" });
     return;
   }
-  try {
-    const observeAnthropic = async () => {
-      await startActiveObservation("request", async (span) => {
+  const observeAnthropic = async () => {
+    await startActiveObservation("request", async (span) => {
+      let generation;
+      try {
         const validated = await MessagesAPIRequest.parseAsync(req.body);
         const userInput = validated.messages.at(validated.messages.length - 1)!;
         span.update({ input: { query: userInput.content } });
-        const generation = startObservation(
+        generation = startObservation(
           "llm-call",
           {
             model: validated.model,
@@ -101,7 +102,7 @@ app.post("/v1/messages", async (req, res) => {
               },
             })
             .end();
-          span.update({ output: "SUCCESS" });
+          span.update({ output: "SUCCESS" }).end();
           res
             .status(200)
             .setHeader("Content-Type", "application/json")
@@ -115,8 +116,10 @@ app.post("/v1/messages", async (req, res) => {
           res.flushHeaders(); // flush immediately so the client knows streaming started
 
           const stream = anthropic.messages.stream(req.body);
+          console.log("streaming");
 
           for await (const event of stream) {
+            console.log(JSON.stringify(event));
             res.write(`data: ${JSON.stringify(event)}\n\n`);
             if (event.type === "message_delta") {
               generation.update({
@@ -135,15 +138,16 @@ app.post("/v1/messages", async (req, res) => {
                 },
                 costDetails: {
                   inputCost:
-                    (event.usage.input_tokens ?? 0 / 1_000_000) *
+                    ((event.usage.input_tokens ?? 0) / 1_000_000) *
                     MODEL_COSTS[validated.model]!.baseInput,
                   cacheCreationCost:
-                    (event.usage.cache_creation_input_tokens ?? 0 / 1_000_000) *
+                    ((event.usage.cache_creation_input_tokens ?? 0) /
+                      1_000_000) *
                     ((validated.cache_control?.ttl ?? "5m") === "5m"
                       ? MODEL_COSTS[validated.model]!.cacheWrite5m
                       : MODEL_COSTS[validated.model]!.cacheWrite1h),
                   cacheHitsCost:
-                    (event.usage.cache_read_input_tokens ?? 0 / 1_000_000) *
+                    ((event.usage.cache_read_input_tokens ?? 0) / 1_000_000) *
                     MODEL_COSTS[validated.model]!.cacheHitsRefreshes,
                   outputCost:
                     (event.usage.output_tokens / 1_000_000) *
@@ -152,24 +156,51 @@ app.post("/v1/messages", async (req, res) => {
               });
             }
           }
+          res.write(`data: [DONE]\n\n`);
           generation.end();
-          span.update({ output: "SUCCESS" });
+          span.update({ output: "SUCCESS" }).end();
+          console.log("end");
           res.end();
         }
-      });
-    };
-    await observeAnthropic();
-  } catch (e) {
-    console.error(e);
-    if (!res.headersSent) {
-      res.status(500).json({ detail: `An error occurred: ${e}` });
-    } else {
-      res.write(
-        `data: ${JSON.stringify({ type: "error", error: { message: e instanceof AnthropicError ? e.message : `An error occurred: ${e}` } })}\n\n`,
-      );
-      res.end();
-    }
-  }
+      } catch (e) {
+        console.error(e);
+        if (generation) {
+          generation
+            .update({
+              output: "ERROR",
+              statusMessage:
+                e instanceof AnthropicError
+                  ? e.message
+                  : `An error occurred: ${e}`,
+            })
+            .end();
+        }
+        span
+          .update({
+            output: "ERROR",
+            statusMessage:
+              e instanceof AnthropicError
+                ? e.message
+                : `An error occurred: ${e}`,
+          })
+          .end();
+        if (!res.headersSent) {
+          res.status(500).json({
+            detail:
+              e instanceof AnthropicError
+                ? e.message
+                : `An error occurred: ${e}`,
+          });
+        } else {
+          res.write(
+            `data: ${JSON.stringify({ type: "error", error: { message: e instanceof AnthropicError ? e.message : `An error occurred: ${e}` } })}\n\n`,
+          );
+          res.end();
+        }
+      }
+    });
+  };
+  await observeAnthropic();
 });
 
 export async function runServer() {
