@@ -1,0 +1,23 @@
+{
+  "name": "@cle-does-things/llm-fuse",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.95.1",
+    "@langfuse/openai": "^5.3.0",
+    "@langfuse/otel": "^5.3.0",
+    "@langfuse/tracing": "^5.3.0",
+    "@openrouter/sdk": "^0.12.35",
+    "@opentelemetry/sdk-node": "^0.217.0",
+    "express": "^5.2.1",
+    "openai": "^6.37.0",
+    "zod": "^4.4.3"
+  }
+}
