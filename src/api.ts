@@ -1,12 +1,11 @@
 import express from "express";
 // import OpenAI from "openai";
 // import { observeOpenAI } from "@langfuse/openai";
-import { sdk } from "./instrumentation";
+import { sdk, langfuseSpanProcessor } from "./instrumentation";
 import Anthropic from "@anthropic-ai/sdk";
 import { AnthropicError } from "@anthropic-ai/sdk/error.js";
 import {
   startActiveObservation,
-  startObservation,
   type LangfuseGenerationAttributes,
 } from "@langfuse/tracing";
 import { VERSION } from "./version";
@@ -38,7 +37,7 @@ app.post("/v1/messages", async (req, res) => {
         const validated = await MessagesAPIRequest.parseAsync(req.body);
         const userInput = validated.messages.at(validated.messages.length - 1)!;
         span.update({ input: { query: userInput.content } });
-        generation = startObservation(
+        generation = span.startObservation(
           "llm-call",
           {
             model: validated.model,
@@ -120,7 +119,9 @@ app.post("/v1/messages", async (req, res) => {
 
           for await (const event of stream) {
             console.log(JSON.stringify(event));
-            res.write(`data: ${JSON.stringify(event)}\n\n`);
+            res.write(
+              `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`,
+            );
             if (event.type === "message_delta") {
               generation.update({
                 output: event.delta,
@@ -156,7 +157,6 @@ app.post("/v1/messages", async (req, res) => {
               });
             }
           }
-          res.write(`data: [DONE]\n\n`);
           generation.end();
           span.update({ output: "SUCCESS" }).end();
           console.log("end");
@@ -192,11 +192,21 @@ app.post("/v1/messages", async (req, res) => {
                 : `An error occurred: ${e}`,
           });
         } else {
-          res.write(
-            `data: ${JSON.stringify({ type: "error", error: { message: e instanceof AnthropicError ? e.message : `An error occurred: ${e}` } })}\n\n`,
-          );
+          const errEvent = {
+            type: "error",
+            error: {
+              type: "api_error",
+              message:
+                e instanceof AnthropicError
+                  ? e.message
+                  : `An error occurred: ${e}`,
+            },
+          };
+          res.write(`event: error\ndata: ${JSON.stringify(errEvent)}\n\n`);
           res.end();
         }
+      } finally {
+        await langfuseSpanProcessor.forceFlush();
       }
     });
   };
@@ -204,11 +214,22 @@ app.post("/v1/messages", async (req, res) => {
 });
 
 export async function runServer() {
-  try {
-    app.listen(port, () => {
-      console.log(`App listening on port ${port}`);
-    });
-  } finally {
-    await sdk.shutdown();
-  }
+  app.listen(port, () => {
+    console.log(`App listening on port ${port}`);
+  });
+
+  const shutdown = async (signal: string) => {
+    console.log(`Received ${signal}, shutting down...`);
+    try {
+      await langfuseSpanProcessor.forceFlush();
+      await sdk.shutdown();
+    } catch (e) {
+      console.error("Error during shutdown:", e);
+    } finally {
+      process.exit(0);
+    }
+  };
+
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 }
