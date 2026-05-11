@@ -1,4 +1,3 @@
-import type { Usage } from "@anthropic-ai/sdk/resources";
 import z from "zod";
 
 const MessageModel = z.object({

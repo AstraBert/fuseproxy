@@ -33,12 +33,12 @@ Thank you for your interest in contributing to this project! Please review these
 
    Ensure the build succeeds and all tests pass. Add tests for new features.
 
-4. **Verify formatting and linting compliance**
+3. **Verify formatting and linting compliance**
    Ensure your changes pass all linting checks.
 
-5. **Commit your changes**
+4. **Commit your changes**
 
-6. **Submit a pull request**
+5. **Submit a pull request**
    Include a comprehensive description of your changes.
 
 ---

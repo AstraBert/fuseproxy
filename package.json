@@ -3,11 +3,23 @@
   "module": "src/index.ts",
   "type": "module",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/bun": "latest",
-    "@types/express": "^5.0.6"
+    "@types/express": "^5.0.6",
+    "eslint": "^10.3.0",
+    "globals": "^17.6.0",
+    "jiti": "^2.7.0",
+    "prettier": "^3.8.3",
+    "typescript-eslint": "^8.59.2"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "scripts": {
+    "lint": "eslint src/",
+    "prettier": "prettier --write .",
+    "prettier:check": "prettier .",
+    "start": "bun run --preload ./src/instrumentation.ts src/index.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
@@ -18,6 +30,7 @@
     "@opentelemetry/sdk-node": "^0.217.0",
     "express": "^5.2.1",
     "openai": "^6.37.0",
+    "tslog": "^4.10.2",
     "zod": "^4.4.3"
   }
 }
