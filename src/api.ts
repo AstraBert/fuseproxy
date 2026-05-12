@@ -1,6 +1,4 @@
 import express from "express";
-// import OpenAI from "openai";
-// import { observeOpenAI } from "@langfuse/openai";
 import { sdk, langfuseSpanProcessor } from "./instrumentation";
 import Anthropic from "@anthropic-ai/sdk";
 import { AnthropicError } from "@anthropic-ai/sdk/error.js";
@@ -14,7 +12,7 @@ import { VERSION } from "./version";
 import { MessagesAPIRequest, MODEL_COSTS } from "./types";
 import { PrefixedLogger } from "./logger";
 
-const app = express();
+export const app = express();
 const port = 5678;
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -62,6 +60,7 @@ app.post("/v1/messages", async (req, res) => {
             modelParameters: {
               max_output_tokens: validated.max_tokens,
               thinking: validated.thinking,
+              system: validated.system,
             },
             environment: process.env.DEPLOYMENT_ENVIRONMENT,
             version: VERSION,
@@ -144,32 +143,30 @@ app.post("/v1/messages", async (req, res) => {
               generation.update({
                 output: event.delta,
                 usageDetails: {
-                  promptTokens: event.usage.input_tokens ?? 0,
-                  completionTokens:
-                    event.usage.output_tokens - currentOutputToks,
-                  cacheReadInputTokens:
-                    event.usage.cache_read_input_tokens ?? 0,
-                  cacheCreationInputTokens:
+                  input: event.usage.input_tokens ?? 0,
+                  output: event.usage.output_tokens - currentOutputToks,
+                  input_cached_tokens: event.usage.cache_read_input_tokens ?? 0,
+                  input_cache_creation:
                     event.usage.cache_creation_input_tokens ?? 0,
-                  totalTokens:
+                  total:
                     (event.usage.input_tokens ?? 0) +
                     (event.usage.cache_read_input_tokens ?? 0) +
                     (event.usage.output_tokens - currentOutputToks),
                 },
                 costDetails: {
-                  inputCost:
+                  input:
                     ((event.usage.input_tokens ?? 0) / 1_000_000) *
                     MODEL_COSTS[validated.model]!.baseInput,
-                  cacheCreationCost:
+                  input_cache_creation:
                     ((event.usage.cache_creation_input_tokens ?? 0) /
                       1_000_000) *
                     ((validated.cache_control?.ttl ?? "5m") === "5m"
                       ? MODEL_COSTS[validated.model]!.cacheWrite5m
                       : MODEL_COSTS[validated.model]!.cacheWrite1h),
-                  cacheHitsCost:
+                  input_cached_tokens:
                     ((event.usage.cache_read_input_tokens ?? 0) / 1_000_000) *
                     MODEL_COSTS[validated.model]!.cacheHitsRefreshes,
-                  outputCost:
+                  output:
                     ((event.usage.output_tokens - currentOutputToks) /
                       1_000_000) *
                     MODEL_COSTS[validated.model]!.output,

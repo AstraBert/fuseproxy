@@ -1,0 +1,25 @@
+name: Lint
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        shell: bash
+        run: bun install
+
+      - name: Run formatter
+        shell: bash
+        run: bun run prettier:check
+
+      - name: Run linter
+        shell: bash
+        run: bun run lint
