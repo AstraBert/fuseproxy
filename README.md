@@ -1,8 +1,8 @@
-# llm-fuse
+# fuseproxy
 
 A lightweight, observable proxy for Anthropic's `POST /v1/messages` API.
 
-`llm-fuse` sits between your internal clients and Anthropic, validates inbound requests, forwards them to Anthropic, and emits tracing + generation telemetry to Langfuse via OpenTelemetry.
+`fuseproxy` sits between your internal clients and Anthropic, validates inbound requests, forwards them to Anthropic, and emits tracing + generation telemetry to Langfuse via OpenTelemetry.
 
 ## What It Does
 
@@ -86,7 +86,7 @@ curl -X POST http://localhost:5678/v1/messages \
 
 ## GitHub Copilot CLI Setup
 
-Follow these steps to configure Copilot to route its LLM requests through `llm-fuse`:
+Follow these steps to configure Copilot to route its LLM requests through `fuseproxy`:
 
 1. Start the proxy:
 
@@ -98,7 +98,7 @@ bun run start
 
 ```bash
 export COPILOT_PROVIDER_TYPE="anthropic" && \
-    export COPILOT_PROVIDER_BEARER_TOKEN="<internal llm-fuse bearer token>" && \
+    export COPILOT_PROVIDER_BEARER_TOKEN="<internal fuseproxy bearer token>" && \
     export COPILOT_MODEL="claude-opus-4-7" && \
     export COPILOT_PROVIDER_BASE_URL=http://localhost:5678 && \
     export COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=32000 && \

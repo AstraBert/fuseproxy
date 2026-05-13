@@ -1,5 +1,5 @@
 {
-  "name": "@cle-does-things/llm-fuse",
+  "name": "@cle-does-things/fuseproxy",
   "module": "src/index.ts",
   "type": "module",
   "devDependencies": {
