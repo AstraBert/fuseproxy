@@ -131,4 +131,11 @@ export const MODEL_COSTS: Record<string, ModelCosts> = {
     cacheHitsRefreshes: 0.3,
     output: 15,
   },
+  "kimi-k2.6": {
+    baseInput: 0.95,
+    cacheHitsRefreshes: 0.16,
+    output: 4,
+    cacheWrite5m: 0,
+    cacheWrite1h: 0,
+  },
 };

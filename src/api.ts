@@ -14,7 +14,10 @@ import { PrefixedLogger } from "./logger";
 
 export const app = express();
 const port = 5678;
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  baseURL: process.env.ANTHROPIC_BASE_URL ?? "https://api.anthropic.com",
+});
 
 app.use(express.json({ limit: "100mb" }));
 

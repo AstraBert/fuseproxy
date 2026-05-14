@@ -54,6 +54,7 @@ Optional:
 
 - `DEPLOYMENT_ENVIRONMENT` (recorded in tracing metadata)
 - `LOG_LEVEL` (`silly|trace|debug|info|warn|error|fatal`, default `debug`)
+- `ANTHROPIC_BASE_URL` (Base URL for the Anthropic API, supports all Anthropic-compatible providers, like Kimi or DeepSeek)
 
 ## Install
 
