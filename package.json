@@ -1,8 +1,47 @@
 {
   "name": "@cle-does-things/fuseproxy",
+  "description": "A lightweight, observable proxy for Anthropic's Messages API.",
+  "version": "0.0.0",
+  "author": {
+    "name": "Clelia Astra Bertelli",
+    "url": "https://github.com/AstraBert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AstraBert/fuseproxy.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AstraBert/fuseproxy/issues"
+  },
+  "homepage": "https://github.com/AstraBert/fuseproxy#readme",
+  "keywords": [
+    "observability",
+    "instrumentation",
+    "langfuse",
+    "ai",
+    "coding-agents"
+  ],
   "module": "src/index.ts",
   "type": "module",
+  "bin": {
+    "fuseproxy": "dist/index.js"
+  },
+  "scripts": {
+    "lint": "eslint src/",
+    "prettier": "prettier --write .",
+    "prettier:check": "prettier .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "bun run --preload ./src/instrumentation.ts src/index.ts",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node",
+    "prepublishOnly": "bun run build",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "bun run build && changeset publish"
+  },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
     "@eslint/js": "^10.0.1",
     "@types/bun": "latest",
     "@types/express": "^5.0.6",
@@ -18,24 +57,22 @@
   "peerDependencies": {
     "typescript": "^5"
   },
-  "scripts": {
-    "lint": "eslint src/",
-    "prettier": "prettier --write .",
-    "prettier:check": "prettier .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "start": "bun run --preload ./src/instrumentation.ts src/index.ts"
-  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
-    "@langfuse/openai": "^5.3.0",
     "@langfuse/otel": "^5.3.0",
     "@langfuse/tracing": "^5.3.0",
     "@openrouter/sdk": "^0.12.35",
     "@opentelemetry/sdk-node": "^0.217.0",
+    "commander": "^14.0.3",
     "express": "^5.2.1",
-    "openai": "^6.37.0",
     "tslog": "^4.10.2",
     "zod": "^4.4.3"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }
