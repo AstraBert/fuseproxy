@@ -42,7 +42,7 @@ A lightweight, observable proxy for Anthropic's `POST /v1/messages` API.
 Minimum required to run the proxy:
 
 - `INTERNAL_API_KEY`: bearer token your clients must send
-- `ANTHROPIC_API_KEY`: key used for upstream Anthropic calls
+- `ANTHROPIC_API_KEY`: key used for upstream Anthropic calls (can also be from an Anthopric-compatible provider like Kimi or DeepSeek)
 
 For Langfuse tracing export:
 
@@ -58,11 +58,35 @@ Optional:
 
 ## Install
 
+From NPM:
+
 ```bash
+npm install -g @cle-does-things/fuseproxy
+```
+
+From source:
+
+```bash
+git clone https://github.com/AstraBert/fuseproxy
+cd fuseproxy
 bun install
 ```
 
 ## Run
+
+If installed with NPM:
+
+```bash
+fuseproxy run
+```
+
+With `npx`:
+
+```bash
+npx @cle-does-things/fuseproxy run
+```
+
+If installed from source:
 
 ```bash
 bun run start

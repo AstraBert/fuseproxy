@@ -6,3 +6,4 @@ copilot.sh
 skills-lock.json
 .agents/
 compose-local.yaml
+bin/
