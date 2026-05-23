@@ -22,13 +22,28 @@ app.use(express.json({ limit: "100mb" }));
 
 app.post("/v1/messages", async (req, res) => {
   const auth = req.headers.authorization;
+  const xauth = req.header("x-api-key");
   const logger = new PrefixedLogger("[/v1/messages]");
-  if (!auth || (auth && !auth.startsWith("Bearer "))) {
-    logger.error("Auth failed: no bearer");
+  if (!auth && !xauth) {
+    logger.error("No Authorization header and no x-api-key found");
     res.status(401).send({ detail: "Unauthorized" });
     return;
   }
-  const apiKey = auth.replace("Bearer ", "");
+  if (!xauth && auth && !auth.startsWith("Bearer ")) {
+    logger.error(
+      "Authorization header has no bearer and x-api-key not available",
+    );
+    res.status(401).send({ detail: "Unauthorized" });
+    return;
+  }
+  let apiKey: string;
+  if (auth) {
+    logger.authMethod = "Authorization";
+    apiKey = auth.replace("Bearer ", "");
+  } else {
+    logger.authMethod = "x-api-key";
+    apiKey = xauth!;
+  }
   if (apiKey != process.env.INTERNAL_API_KEY) {
     logger.error("Auth failed: API key does not match");
     res.status(401).send({ detail: "Unauthorized" });

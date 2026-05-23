@@ -109,7 +109,9 @@ curl -X POST http://localhost:5678/v1/messages \
   }'
 ```
 
-## GitHub Copilot CLI Setup
+## Integrations
+
+### GitHub Copilot CLI
 
 Follow these steps to configure Copilot to route its LLM requests through `fuseproxy`:
 
@@ -139,6 +141,55 @@ echo "$COPILOT_MODEL"
 ```
 
 > Important: `COPILOT_PROVIDER_BEARER_TOKEN` must match `INTERNAL_API_KEY` used by the proxy, or requests will return `401 Unauthorized`.
+
+### Pi Agents Setup
+
+You can set up `fuseproxy` for your [Pi agents](https://pi.dev) by adding this to your `~/.pi/agent/models.json` config file:
+
+```json
+{
+  "providers": {
+    "fuseproxy": {
+      "baseUrl": "http://localhost:5678",
+      "api": "anthropic-messages",
+      "apiKey": "fuseproxy", // <- not needed, just a placeholder
+      "headers": {
+        "x-api-key": "YOUR_INTERNAL_API_KEY" // <- must match with the internal API key
+      },
+      "models": [
+        {
+          "id": "claude-opus-4-7",
+          "name": "Claude Opus 4.7",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "contextWindow": 64000,
+          "maxTokens": 32000,
+          "cost": {
+            "input": 5,
+            "output": 25,
+            "cacheRead": 0.5,
+            "cacheWrite": 6.25
+          }
+        },
+        {
+          "id": "kimi-k2.6",
+          "name": "Kimi K2.6",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 64000,
+          "maxTokens": 32000,
+          "cost": {
+            "input": 0.95,
+            "output": 4,
+            "cacheRead": 0.16,
+            "cacheWrite": 0
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Streaming Behavior
 

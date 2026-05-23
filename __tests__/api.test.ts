@@ -54,4 +54,23 @@ describe("POST /v1/messages happy path", () => {
     expect(response.text).toContain("event:");
     expect(response.text).toContain("data:");
   });
+
+  testIfEnv("works if x-api-key provided", async () => {
+    const response = await request(app)
+      .post("/v1/messages")
+      .set("x-api-key", `${process.env.INTERNAL_API_KEY!}`)
+      .send({
+        model: "claude-opus-4-7",
+        max_tokens: 64,
+        stream: false,
+        system: "You are concise.",
+        messages: [{ role: "user", content: "Reply with exactly: OK" }],
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("model");
+    expect(response.body).toHaveProperty("content");
+    expect(Array.isArray(response.body.content)).toBe(true);
+  });
 });
