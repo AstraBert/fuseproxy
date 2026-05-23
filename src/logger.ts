@@ -28,6 +28,7 @@ export class PrefixedLogger {
   prefix: string;
   private _traceId: string | undefined = undefined;
   private _spanId: string | undefined = undefined;
+  private _authMethod: string | undefined = undefined;
 
   constructor(prefix: string) {
     this.logger = new Logger<ILogObj>({ minLevel: getLogLevel() }); // debug
@@ -50,10 +51,19 @@ export class PrefixedLogger {
     this._spanId = spanId;
   }
 
+  public get authMethod(): string {
+    return this._authMethod ?? "unknown";
+  }
+
+  public set authMethod(method: "x-api-key" | "Authorization") {
+    this._authMethod = method;
+  }
+
   info(message: string, ...args: unknown[]) {
     this.logger.info(`${this.prefix} ${message}`, ...args, {
       spanId: this.spanId,
       traceId: this.traceId,
+      authMethod: this.authMethod,
     });
   }
 
@@ -61,6 +71,7 @@ export class PrefixedLogger {
     this.logger.debug(`${this.prefix} ${message}`, ...args, {
       spanId: this.spanId,
       traceId: this.traceId,
+      authMethod: this.authMethod,
     });
   }
 
@@ -68,6 +79,7 @@ export class PrefixedLogger {
     this.logger.error(`${this.prefix} ${message}`, ...args, {
       spanId: this.spanId,
       traceId: this.traceId,
+      authMethod: this.authMethod,
     });
   }
 
@@ -75,6 +87,7 @@ export class PrefixedLogger {
     this.logger.warn(`${this.prefix} ${message}`, ...args, {
       spanId: this.spanId,
       traceId: this.traceId,
+      authMethod: this.authMethod,
     });
   }
 
@@ -82,6 +95,7 @@ export class PrefixedLogger {
     this.logger.silly(`${this.prefix} ${message}`, ...args, {
       spanId: this.spanId,
       traceId: this.traceId,
+      authMethod: this.authMethod,
     });
   }
 
@@ -89,6 +103,7 @@ export class PrefixedLogger {
     this.logger.fatal(`${this.prefix} ${message}`, ...args, {
       spanId: this.spanId,
       traceId: this.traceId,
+      authMethod: this.authMethod,
     });
   }
 
@@ -96,6 +111,7 @@ export class PrefixedLogger {
     this.logger.trace(`${this.prefix} ${message}`, ...args, {
       spanId: this.spanId,
       traceId: this.traceId,
+      authMethod: this.authMethod,
     });
   }
 }
