@@ -75,6 +75,13 @@ type ModelCosts = {
 };
 
 export const MODEL_COSTS: Record<string, ModelCosts> = {
+  "claude-opus-4-8": {
+    baseInput: 5,
+    cacheWrite5m: 6.25,
+    cacheWrite1h: 10,
+    cacheHitsRefreshes: 0.5,
+    output: 25,
+  },
   "claude-opus-4-7": {
     baseInput: 5,
     cacheWrite5m: 6.25,
