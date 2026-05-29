@@ -1,5 +1,11 @@
 # @cle-does-things/fuseproxy
 
+## 0.2.1
+
+### Patch Changes
+
+- 655ce04: Add support for Claude Opus 4.8
+
 ## 0.2.0
 
 ### Minor Changes
