@@ -1,5 +1,11 @@
 # @cle-does-things/fuseproxy
 
+## 0.3.0
+
+### Minor Changes
+
+- 0025aec: Add a fallback to support any model, even those we don't have usage data about
+
 ## 0.2.1
 
 ### Patch Changes
