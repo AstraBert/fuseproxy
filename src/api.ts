@@ -87,6 +87,13 @@ app.post("/v1/messages", async (req, res) => {
           logger.debug("No streaming response");
           const response = await anthropic.messages.create(req.body);
           logger.info("Generated response");
+          const modelCosts = MODEL_COSTS[validated.model] ?? {
+            baseInput: 0,
+            output: 0,
+            cacheHitsRefreshes: 0,
+            cacheWrite1h: 0,
+            cacheWrite5m: 0,
+          };
           generation
             .update({
               output: response.content,
@@ -105,19 +112,19 @@ app.post("/v1/messages", async (req, res) => {
               costDetails: {
                 inputCost:
                   (response.usage.input_tokens ?? 0 / 1_000_000) *
-                  MODEL_COSTS[validated.model]!.baseInput,
+                  modelCosts.baseInput,
                 cacheCreationCost:
                   (response.usage.cache_creation_input_tokens ??
                     0 / 1_000_000) *
                   ((validated.cache_control?.ttl ?? "5m") === "5m"
-                    ? MODEL_COSTS[validated.model]!.cacheWrite5m
-                    : MODEL_COSTS[validated.model]!.cacheWrite1h),
+                    ? modelCosts.cacheWrite5m
+                    : modelCosts.cacheWrite1h),
                 cacheHitsCost:
                   (response.usage.cache_read_input_tokens ?? 0 / 1_000_000) *
-                  MODEL_COSTS[validated.model]!.cacheHitsRefreshes,
+                  modelCosts.cacheHitsRefreshes,
                 outputCost:
                   (response.usage.output_tokens / 1_000_000) *
-                  MODEL_COSTS[validated.model]!.output,
+                  modelCosts.output,
               },
               model: response.model,
               metadata: {
@@ -148,6 +155,13 @@ app.post("/v1/messages", async (req, res) => {
           const stream = anthropic.messages.stream(req.body);
           logger.silly("Started streaming");
           let currentOutputToks = 0;
+          const modelCosts = MODEL_COSTS[validated.model] ?? {
+            baseInput: 0,
+            output: 0,
+            cacheHitsRefreshes: 0,
+            cacheWrite1h: 0,
+            cacheWrite5m: 0,
+          };
 
           for await (const event of stream) {
             logger.silly(`Received event of type ${event.type}`);
@@ -171,20 +185,20 @@ app.post("/v1/messages", async (req, res) => {
                 costDetails: {
                   input:
                     ((event.usage.input_tokens ?? 0) / 1_000_000) *
-                    MODEL_COSTS[validated.model]!.baseInput,
+                    modelCosts.baseInput,
                   input_cache_creation:
                     ((event.usage.cache_creation_input_tokens ?? 0) /
                       1_000_000) *
                     ((validated.cache_control?.ttl ?? "5m") === "5m"
-                      ? MODEL_COSTS[validated.model]!.cacheWrite5m
-                      : MODEL_COSTS[validated.model]!.cacheWrite1h),
+                      ? modelCosts.cacheWrite5m
+                      : modelCosts.cacheWrite1h),
                   input_cached_tokens:
                     ((event.usage.cache_read_input_tokens ?? 0) / 1_000_000) *
-                    MODEL_COSTS[validated.model]!.cacheHitsRefreshes,
+                    modelCosts.cacheHitsRefreshes,
                   output:
                     ((event.usage.output_tokens - currentOutputToks) /
                       1_000_000) *
-                    MODEL_COSTS[validated.model]!.output,
+                    modelCosts.output,
                 },
               });
               currentOutputToks = event.usage.output_tokens;
