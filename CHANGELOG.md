@@ -1,5 +1,11 @@
 # @cle-does-things/fuseproxy
 
+## 0.3.1
+
+### Patch Changes
+
+- be4809e: Add model information to the logger
+
 ## 0.3.0
 
 ### Minor Changes
