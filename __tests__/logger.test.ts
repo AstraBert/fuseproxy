@@ -74,16 +74,25 @@ const NO_TRACE = JSON.stringify({
   spanId: "no-span",
   traceId: "no-trace",
   authMethod: "unknown",
+  model: "unset",
 });
 const WITH_TRACE = JSON.stringify({
   spanId: "span-1",
   traceId: "trace-1",
   authMethod: "unknown",
+  model: "unset",
 });
 const WITH_AUTHMETHOD = JSON.stringify({
   spanId: "span-1",
   traceId: "trace-1",
   authMethod: "x-api-key",
+  model: "unset",
+});
+const WITH_MODEL = JSON.stringify({
+  spanId: "span-1",
+  traceId: "trace-1",
+  authMethod: "x-api-key",
+  model: "claude-opus-4-8",
 });
 const MESSAGE = "this is a test";
 const PREFIX = "[test]";
@@ -281,5 +290,84 @@ describe("Test prefixed logger methods with authMethod", () => {
     logger.fatal(MESSAGE);
     const logs = readLogs();
     expect(logs).toBe(`FATAL\n${PREFIX} ${MESSAGE}\n${WITH_AUTHMETHOD}`);
+  });
+});
+
+describe("Test prefixed logger methods with model", () => {
+  it("Test info", () => {
+    const logger = new PrefixedLogger(PREFIX);
+    logger.spanId = "span-1";
+    logger.traceId = "trace-1";
+    logger.authMethod = "x-api-key";
+    logger.model = "claude-opus-4-8";
+    logger.info(MESSAGE);
+    const logs = readLogs();
+    expect(logs).toBe(`INFO\n${PREFIX} ${MESSAGE}\n${WITH_MODEL}`);
+  });
+
+  it("Test debug", () => {
+    const logger = new PrefixedLogger(PREFIX);
+    logger.spanId = "span-1";
+    logger.traceId = "trace-1";
+    logger.authMethod = "x-api-key";
+    logger.model = "claude-opus-4-8";
+    logger.debug(MESSAGE);
+    const logs = readLogs();
+    expect(logs).toBe(`DEBUG\n${PREFIX} ${MESSAGE}\n${WITH_MODEL}`);
+  });
+
+  it("Test error", () => {
+    const logger = new PrefixedLogger(PREFIX);
+    logger.spanId = "span-1";
+    logger.traceId = "trace-1";
+    logger.authMethod = "x-api-key";
+    logger.model = "claude-opus-4-8";
+    logger.error(MESSAGE);
+    const logs = readLogs();
+    expect(logs).toBe(`ERROR\n${PREFIX} ${MESSAGE}\n${WITH_MODEL}`);
+  });
+
+  it("Test warn", () => {
+    const logger = new PrefixedLogger(PREFIX);
+    logger.spanId = "span-1";
+    logger.traceId = "trace-1";
+    logger.authMethod = "x-api-key";
+    logger.model = "claude-opus-4-8";
+    logger.warn(MESSAGE);
+    const logs = readLogs();
+    expect(logs).toBe(`WARN\n${PREFIX} ${MESSAGE}\n${WITH_MODEL}`);
+  });
+
+  it("Test trace", () => {
+    const logger = new PrefixedLogger(PREFIX);
+    logger.spanId = "span-1";
+    logger.traceId = "trace-1";
+    logger.authMethod = "x-api-key";
+    logger.model = "claude-opus-4-8";
+    logger.trace(MESSAGE);
+    const logs = readLogs();
+    expect(logs).toBe(`TRACE\n${PREFIX} ${MESSAGE}\n${WITH_MODEL}`);
+  });
+
+  it("Test silly", () => {
+    const logger = new PrefixedLogger(PREFIX);
+    logger.spanId = "span-1";
+    logger.traceId = "trace-1";
+    logger.authMethod = "x-api-key";
+    logger.model = "claude-opus-4-8";
+    logger.silly(MESSAGE);
+    const logs = readLogs();
+    expect(logs).toBe(`SILLY\n${PREFIX} ${MESSAGE}\n${WITH_MODEL}`);
+  });
+
+  it("Test fatal", () => {
+    const logger = new PrefixedLogger(PREFIX);
+    logger.spanId = "span-1";
+    logger.traceId = "trace-1";
+    logger.authMethod = "x-api-key";
+    logger.model = "claude-opus-4-8";
+    logger.fatal(MESSAGE);
+    const logs = readLogs();
+    expect(logs).toBe(`FATAL\n${PREFIX} ${MESSAGE}\n${WITH_MODEL}`);
   });
 });
