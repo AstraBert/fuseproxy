@@ -29,6 +29,7 @@ export class PrefixedLogger {
   private _traceId: string | undefined = undefined;
   private _spanId: string | undefined = undefined;
   private _authMethod: string | undefined = undefined;
+  private _model: string | undefined = undefined;
 
   constructor(prefix: string) {
     this.logger = new Logger<ILogObj>({ minLevel: getLogLevel() }); // debug
@@ -59,11 +60,20 @@ export class PrefixedLogger {
     this._authMethod = method;
   }
 
+  public get model(): string {
+    return this._model ?? "unset";
+  }
+
+  public set model(model: string) {
+    this._model = model;
+  }
+
   info(message: string, ...args: unknown[]) {
     this.logger.info(`${this.prefix} ${message}`, ...args, {
       spanId: this.spanId,
       traceId: this.traceId,
       authMethod: this.authMethod,
+      model: this.model,
     });
   }
 
@@ -72,6 +82,7 @@ export class PrefixedLogger {
       spanId: this.spanId,
       traceId: this.traceId,
       authMethod: this.authMethod,
+      model: this.model,
     });
   }
 
@@ -80,6 +91,7 @@ export class PrefixedLogger {
       spanId: this.spanId,
       traceId: this.traceId,
       authMethod: this.authMethod,
+      model: this.model,
     });
   }
 
@@ -88,6 +100,7 @@ export class PrefixedLogger {
       spanId: this.spanId,
       traceId: this.traceId,
       authMethod: this.authMethod,
+      model: this.model,
     });
   }
 
@@ -96,6 +109,7 @@ export class PrefixedLogger {
       spanId: this.spanId,
       traceId: this.traceId,
       authMethod: this.authMethod,
+      model: this.model,
     });
   }
 
@@ -104,6 +118,7 @@ export class PrefixedLogger {
       spanId: this.spanId,
       traceId: this.traceId,
       authMethod: this.authMethod,
+      model: this.model,
     });
   }
 
@@ -112,6 +127,7 @@ export class PrefixedLogger {
       spanId: this.spanId,
       traceId: this.traceId,
       authMethod: this.authMethod,
+      model: this.model,
     });
   }
 }

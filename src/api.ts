@@ -60,6 +60,7 @@ app.post("/v1/messages", async (req, res) => {
         const validated = await MessagesAPIRequest.parseAsync(req.body);
         const userInput = validated.messages.at(validated.messages.length - 1)!;
         logger.silly("Validated messages");
+        logger.model = validated.model;
         span.update({ input: { query: userInput.content } });
         generation = span.startObservation(
           "llm-call",
